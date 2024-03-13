@@ -1,19 +1,31 @@
-function cadastrarFuncionario() {
-  var form = document.getElementById("formFuncionario");
-  var resultado = document.getElementById("resultado");
+const form = document.getElementById("cadastroForm");
+const mensagemDiv = document.getElementById("mensagem");
 
-  var data = new FormData(form);
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
 
-  fetch("cadastro.php", {
+  const nome = document.getElementById("nome").value;
+  const cargo = document.getElementById("cargo").value;
+  const salario = document.getElementById("salario").value;
+
+  fetch("/funcionarios", {
     method: "POST",
-    body: data,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ nome, cargo, salario }),
   })
-    .then((response) => response.text())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Erro ao cadastrar funcionário");
+      }
+      return response.json();
+    })
     .then((data) => {
-      resultado.innerHTML = data;
+      mensagemDiv.innerHTML = "<p>Funcionário cadastrado com sucesso!</p>";
       form.reset();
     })
     .catch((error) => {
-      console.error("Erro:", error);
+      mensagemDiv.innerHTML = `<p>Erro: ${error.message}</p>`;
     });
-}
+});
